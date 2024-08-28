@@ -15,7 +15,7 @@ class VoiceStatistics
     public const STATISTICS_PERIOD_MONTH = 'month';
 
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'integer')]
     private int $id;
 
