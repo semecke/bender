@@ -237,7 +237,7 @@ class VoiceStatisticsService
         }
 
         $totalTime = $this->cache->get(sprintf('personalStatistics_%s', $targetUser->getId()), function () use ($voiceStatisticsRepository, $targetUser) {
-            return $voiceStatisticsRepository->getTopByUser($targetUser);
+            return $voiceStatisticsRepository->getPersonalStatisticsForUser($targetUser);
         });
 
         $replyMessageRows = [sprintf('<@%s> - %s ч', $targetUser->getDiscordId(), $this->getBeautifulTime($totalTime))];

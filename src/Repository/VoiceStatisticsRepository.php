@@ -28,38 +28,6 @@ class VoiceStatisticsRepository extends EntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function getUserTimeOnVoiceChannel(User $user, VoiceChannel $voiceChannel)
-    {
-        $qb = $this->createQueryBuilder('s');
-        $qb->where('s.user = :user')
-            ->andWhere('s.voiceChannel = :voiceChannel')
-            ->setParameter('user', $user)
-            ->setParameter('voiceChannel', $voiceChannel);
-
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function findAllStatisticsByUser(User $user): mixed
-    {
-        $qb = $this->createQueryBuilder('s');
-
-        $qb->where('s.user = :user')
-            ->andWhere('s.leavedAt is not null')
-            ->andWhere('s.joinedAt is not null')
-            ->setParameter('user', $user);
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function getUserTimeOnVoiceChannelsForLastMonth(User $user)
-    {
-        $qb = $this->createQueryBuilder('s');
-        $qb->where('s.user = :user')
-            ->setParameter('user', $user);
-    }
-
     public function findActiveStatisticsByUser(User $user): array
     {
         $qb = $this->createQueryBuilder('s');
@@ -86,9 +54,8 @@ class VoiceStatisticsRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('s');
 
-        $qb = $qb->select("SUM(TIME_DIFF(s.leavedAt, s.joinedAt, 'second')) as totalSeconds, u.discordId as discordId")
+        $qb = $qb->select("SUM(TIME_DIFF(IFNULL(s.leavedAt, NOW()), GREATEST(s.joinedAt, :date), 'second')) as totalSeconds, u.discordId as discordId")
             ->join("s.user", "u")
-            ->andWhere('s.leavedAt is not null and s.joinedAt is not null')
             ->groupBy('u.id')
             ->orderBy('totalSeconds', 'DESC')
             ->setMaxResults($countUser);
@@ -101,13 +68,12 @@ class VoiceStatisticsRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getTopByUser(User $user): mixed
+    public function getPersonalStatisticsForUser(User $user): mixed
     {
         $qb = $this->createQueryBuilder('s');
 
-        $qb = $qb->select("SUM(TIME_DIFF(s.leavedAt, s.joinedAt, 'second'))")
+        $qb = $qb->select("SUM(TIME_DIFF(IFNULL(s.leavedAt, NOW()), s.joinedAt, 'second'))")
             ->join("s.user", "u")
-            ->andWhere('s.leavedAt is not null and s.joinedAt is not null')
             ->andWhere('u.id = :user')
             ->setParameter('user', $user)
             ->groupBy('u.id')
@@ -123,12 +89,11 @@ class VoiceStatisticsRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('s1');
 
-        $qb = $qb->select("u.discordId discordId, SUM(TIME_DIFF(LEAST(s1.leavedAt, s2.leavedAt), GREATEST(s1.joinedAt, s2.joinedAt), 'second')) totalSeconds")
+        $qb = $qb->select("u.discordId discordId, SUM(TIME_DIFF(LEAST(IFNULL(s1.leavedAt, NOW()), IFNULL(s2.leavedAt, NOW())), GREATEST(s1.joinedAt, s2.joinedAt), 'second')) totalSeconds")
             ->innerJoin(VoiceStatistics::class, 's2', 'WITH', 's1.voiceChannel = s2.voiceChannel')
             ->join('s2.user', 'u')
-            ->where('s1.leavedAt IS NOT NULL and s2.leavedAt IS NOT NULL')
             ->andWhere('s1.user != s2.user')
-            ->andWhere('s1.joinedAt < s2.leavedAt and s2.joinedAt < s1.leavedAt')
+            ->andWhere('s1.joinedAt < IFNULL(s2.leavedAt, NOW()) and s2.joinedAt < IFNULL(s1.leavedAt, NOW())')
             ->andWhere('s1.user = :user')
             ->setParameter('user', $user)
             ->groupBy('s1.user')
