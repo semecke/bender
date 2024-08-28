@@ -170,7 +170,7 @@ class VoiceStatisticsService
         if ($hours < 0.1) {
             $beautifulHours = 0.1;
         } else {
-            $beautifulHours = round($hours, 1);
+            $beautifulHours = round($hours, 3);
         }
 
         return $beautifulHours;
