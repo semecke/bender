@@ -54,7 +54,12 @@ class VoiceStatisticsRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('s');
 
-        $qb = $qb->select("SUM(TIME_DIFF(IFNULL(s.leavedAt, UTC_TIMESTAMP()), GREATEST(s.joinedAt, :date), 'second')) as totalSeconds, u.discordId as discordId")
+        $dqlJoinedAt = 's.joinedAt';
+        if (!empty($topStartDate)) {
+            $dqlJoinedAt = 'GREATEST(s.joinedAt, :date)';
+        }
+
+        $qb = $qb->select("SUM(TIME_DIFF(IFNULL(s.leavedAt, UTC_TIMESTAMP()), " . $dqlJoinedAt . ", 'second')) as totalSeconds, u.discordId as discordId")
             ->join("s.user", "u")
             ->groupBy('u.id')
             ->orderBy('totalSeconds', 'DESC')
