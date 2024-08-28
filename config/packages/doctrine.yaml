@@ -19,6 +19,7 @@ doctrine:
         dql:
             datetime_functions:
                 now: DoctrineExtensions\Query\Mysql\Now
+                utc_timestamp: DoctrineExtensions\Query\Mysql\UtcTimestamp
             numeric_functions:
                 time_diff: App\DQL\TimeDiff
             string_functions:
