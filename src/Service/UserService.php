@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\User;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\User\Member;
+use Discord\Parts\WebSockets\PresenceUpdate;
 use Discord\Parts\WebSockets\VoiceStateUpdate;
 use Doctrine\ORM\EntityManagerInterface;
 use Discord\Parts\User\User as DiscordUser;
@@ -32,6 +33,8 @@ class UserService
             $member = $object->member;
         } elseif ($object instanceof Member) {
             $member = $object;
+        } elseif ($object instanceof PresenceUpdate) {
+            $member = $object->member;
         } else {
             return null;
         }

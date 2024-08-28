@@ -6,19 +6,20 @@ class DiscordLogger
 {
     private const LOG_ERROR_CHANNEL_ID = 1253631427363340308;
 
-    public function __construct(private DiscordService $discordService)
+    public function __construct(private DiscordService $discordService, private MessageService $messageService)
     {
     }
 
-    public function log(string $message) {
-
-    }
-
-    public function logText(string $text): void
+    public function logText(string $text, bool $silent = false): void
     {
         $logChannel = $this->discordService->getDiscord()->getChannel(self::LOG_ERROR_CHANNEL_ID);
 
-        $logChannel->sendMessage($text);
+        $message = $text;
+        if ($silent) {
+            $message = $this->messageService->createMessage($text);
+        }
+
+        $logChannel->sendMessage($message);
     }
 
     public function logError(\Throwable $e): void

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\ActivityStatistics;
 use App\Entity\User;
 use App\Entity\VoiceChannel;
 use App\Entity\VoiceStatistics;
@@ -245,6 +246,24 @@ class VoiceStatisticsService
             $replyMessageRows[] = sprintf('%s. <@%s> - %s ч', $place, $discordId, $totalTime);
 
             $place++;
+        }
+
+        $activityStatisticsRepository = $this->em->getRepository(ActivityStatistics::class);
+
+        $activityStatistics = $activityStatisticsRepository->getPersonalStatisticsForUser($targetUser);
+        if (!empty($activityStatistics)) {
+            $replyMessageRows[] = '';
+            $replyMessageRows[] = 'Любимые игры:';
+
+            $place = 1;
+            foreach ($activityStatistics as $activityStatistic) {
+                $activityName = $activityStatistic['activityName'];
+                $totalTime = $this->getBeautifulTime($activityStatistic['totalSeconds']);
+
+                $replyMessageRows[] = sprintf('%s. **%s** - %s ч', $place, $activityName, $totalTime);
+
+                $place++;
+            }
         }
 
         $messageText = implode("\n", $replyMessageRows);

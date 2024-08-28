@@ -6,12 +6,14 @@ use App\Service\DiscordEvent\ChannelDeleteEvent;
 use App\Service\DiscordEvent\ChannelUpdateEvent;
 use App\Service\DiscordEvent\GuildMemberUpdateEvent;
 use App\Service\DiscordEvent\MessageCreateEvent;
+use App\Service\DiscordEvent\PresenceUpdateEvent;
 use App\Service\DiscordEvent\VoiceStateUpdateEvent;
 use Discord\Discord;
 use Discord\Exceptions\IntentException;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\User\Member;
+use Discord\Parts\WebSockets\PresenceUpdate;
 use Discord\Parts\WebSockets\VoiceStateUpdate;
 use Discord\WebSockets\Event;
 
@@ -24,6 +26,7 @@ class DiscordEventService
                                 private readonly ChannelUpdateEvent     $channelUpdateEvent,
                                 private readonly GuildMemberUpdateEvent $guildMemberUpdateEvent,
                                 private readonly ChannelDeleteEvent     $channelDeleteEvent,
+                                private readonly PresenceUpdateEvent    $presenceUpdateEvent
     )
     {
     }
@@ -77,6 +80,15 @@ class DiscordEventService
             $discord->on(Event::CHANNEL_DELETE, function (Channel $channel, Discord $discord) {
                 try {
                     $this->channelDeleteEvent->execute($channel);
+                } catch (\Exception $e) {
+                    $this->discordLogger->logError($e);
+                }
+            });
+
+
+            $discord->on(Event::PRESENCE_UPDATE, function (PresenceUpdate $presence, Discord $discord) {
+                try {
+                    $this->presenceUpdateEvent->execute($presence);
                 } catch (\Exception $e) {
                     $this->discordLogger->logError($e);
                 }
