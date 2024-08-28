@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Entity\VoiceChannel;
 use App\Entity\VoiceStatistics;
 use DateTime;
-use Discord\Builders\MessageBuilder;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\WebSockets\VoiceStateUpdate;
@@ -66,8 +65,6 @@ class VoiceStatisticsService
             return;
         }
 
-        $this->cache->delete(sprintf('personalStatistics_%s', $user->getId()));
-
         if ($currentChannel !== null && $oldChannel === null) { //юзер зашел в чат
             $this->createStatisticsUserCameInVoice($user, $currentChannel);
         } elseif ($currentChannel === null && $oldChannel !== null) { //юзер вышел из чата
@@ -75,10 +72,6 @@ class VoiceStatisticsService
         } elseif ($oldChannel !== null & $currentChannel !== null && $currentChannel->getChannelId() !== $oldChannel->getChannelId()) {
             $this->createStatisticsUserMovedVoice($user, $currentChannel, $oldChannel);
         }
-
-        $this->cache->delete('totalTimeTopUsers_all');
-        $this->cache->delete(sprintf('totalTimeTopUsers_%s', VoiceStatistics::STATISTICS_PERIOD_MONTH));
-        $this->cache->delete(sprintf('totalTimeTopUsers_%s', VoiceStatistics::STATISTICS_PERIOD_WEEK));
     }
 
     private function createStatisticsUserCameInVoice(User $user, VoiceChannel $voiceChannel): void
@@ -170,7 +163,7 @@ class VoiceStatisticsService
         if ($hours < 0.1) {
             $beautifulHours = 0.1;
         } else {
-            $beautifulHours = round($hours, 3);
+            $beautifulHours = round($hours, 1);
         }
 
         return $beautifulHours;
@@ -186,9 +179,7 @@ class VoiceStatisticsService
             default => null,
         };
 
-        $totalTimeTopUsers = $this->cache->get(sprintf('totalTimeTopUsers_%s', $period ?? 'all'), function () use ($voiceStatisticsRepository, $topStartDate) {
-            return $voiceStatisticsRepository->getTopForPeriod(topStartDate: $topStartDate);
-        });
+        $totalTimeTopUsers = $voiceStatisticsRepository->getTopForPeriod(topStartDate: $topStartDate);
 
         if (empty($totalTimeTopUsers)) {
             return;
@@ -237,10 +228,6 @@ class VoiceStatisticsService
         }
 
         $totalTime = $voiceStatisticsRepository->getPersonalStatisticsForUser($targetUser);
-
-//        $totalTime = $this->cache->get(sprintf('personalStatistics_%s', $targetUser->getId()), function () use ($voiceStatisticsRepository, $targetUser) {
-//            return $voiceStatisticsRepository->getPersonalStatisticsForUser($targetUser);
-//        });
 
         $replyMessageRows = [sprintf('<@%s> - %s ч', $targetUser->getDiscordId(), $this->getBeautifulTime($totalTime))];
 
