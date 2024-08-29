@@ -19,7 +19,6 @@ class ActivityService
     {
     }
 
-
     public function manageStatistics(PresenceUpdate $presence): void
     {
         $user = $this->userService->authUser($presence);
@@ -76,5 +75,4 @@ class ActivityService
         $this->em->persist($newStatisticsRow);
         $this->em->flush();
     }
-
 }

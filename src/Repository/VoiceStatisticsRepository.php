@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Entity\VoiceChannel;
 use App\Entity\VoiceStatistics;
 use DateTime;
-use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 

@@ -33,6 +33,7 @@ class ActivityStatisticsRepository extends EntityRepository
             ->andWhere('u.id = :user')
             ->setParameter('user', $user)
             ->addGroupBy('s.activity')
+            ->addOrderBy('totalSeconds', 'DESC')
             ->setMaxResults(3);
 
         return $qb->getQuery()->getResult();
