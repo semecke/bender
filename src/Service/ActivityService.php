@@ -21,6 +21,7 @@ class ActivityService
 
     public function manageStatistics(PresenceUpdate $presence): void
     {
+        return;
         $user = $this->userService->authUser($presence);
         if ($user === null) {
             return;

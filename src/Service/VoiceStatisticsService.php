@@ -248,23 +248,23 @@ class VoiceStatisticsService
             $place++;
         }
 
-        $activityStatisticsRepository = $this->em->getRepository(ActivityStatistics::class);
+//        $activityStatisticsRepository = $this->em->getRepository(ActivityStatistics::class);
 
-        $activityStatistics = $activityStatisticsRepository->getPersonalStatisticsForUser($targetUser);
-        if (!empty($activityStatistics)) {
-            $replyMessageRows[] = '';
-            $replyMessageRows[] = 'Любимые игры:';
-
-            $place = 1;
-            foreach ($activityStatistics as $activityStatistic) {
-                $activityName = $activityStatistic['activityName'];
-                $totalTime = $this->getBeautifulTime($activityStatistic['totalSeconds']);
-
-                $replyMessageRows[] = sprintf('%s. **%s** - %s ч', $place, $activityName, $totalTime);
-
-                $place++;
-            }
-        }
+//        $activityStatistics = $activityStatisticsRepository->getPersonalStatisticsForUser($targetUser);
+//        if (!empty($activityStatistics)) {
+//            $replyMessageRows[] = '';
+//            $replyMessageRows[] = 'Любимые игры:';
+//
+//            $place = 1;
+//            foreach ($activityStatistics as $activityStatistic) {
+//                $activityName = $activityStatistic['activityName'];
+//                $totalTime = $this->getBeautifulTime($activityStatistic['totalSeconds']);
+//
+//                $replyMessageRows[] = sprintf('%s. **%s** - %s ч', $place, $activityName, $totalTime);
+//
+//                $place++;
+//            }
+//        }
 
         $messageText = implode("\n", $replyMessageRows);
         $message->reply($this->messageService->createMessage($messageText));
