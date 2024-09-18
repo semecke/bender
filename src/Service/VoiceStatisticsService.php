@@ -189,20 +189,20 @@ class VoiceStatisticsService
         $place = 1;
         $topUserListMessageRows = [];
         foreach ($totalTimeTopUsers as $totalTimeTopUser) {
-            $prefix = '';
+            $prefix = $place . '.';
             if ($place === 1) {
-                $prefix = '🥇 ';
+                $prefix = '🥇';
             } elseif ($place === 2) {
-                $prefix = '🥈 ';
+                $prefix = '🥈';
 
             } elseif ($place === 3) {
-                $prefix = '🥉 ';
+                $prefix = '🥉';
             }
 
             $discordId = $totalTimeTopUser['discordId'];
             $totalTime = $this->getBeautifulTime($totalTimeTopUser['totalSeconds']);
 
-            $topUserListMessageRows[] = sprintf('%s. %s <@%s> - %s ч', $place, $prefix, $discordId, $totalTime);
+            $topUserListMessageRows[] = sprintf('%s <@%s> - %s ч', $prefix, $discordId, $totalTime);
 
             $place++;
         }
