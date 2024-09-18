@@ -191,12 +191,12 @@ class VoiceStatisticsService
         foreach ($totalTimeTopUsers as $totalTimeTopUser) {
             $prefix = $place . '.';
             if ($place === 1) {
-                $prefix = '🥇';
+                $prefix = ' 🥇';
             } elseif ($place === 2) {
-                $prefix = '🥈';
+                $prefix = ' 🥈';
 
             } elseif ($place === 3) {
-                $prefix = '🥉';
+                $prefix = ' 🥉';
             }
 
             $discordId = $totalTimeTopUser['discordId'];
